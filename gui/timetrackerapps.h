@@ -12,6 +12,9 @@ class timetrackerapps : public QMainWindow
 public:
     timetrackerapps(QWidget* parent = nullptr);
     ~timetrackerapps();
+    void addWindowItem(QString appName, QString time);
+    void updateWindowTime(QString appName, QString newTime);
+    bool containsApp(const QString& appName);
 
 private slots:
     void setActiveWindowFilter();
@@ -22,7 +25,5 @@ private:
     QPushButton* allWindowsButton_;
     QListWidget* windowListWidget_;
     bool activeFilter_ = true;
-    void addWindowItem(const QString& appName, const QString& time);
-    void updateWindowList();
 };
 #endif // TIMETRACKERAPPS_H

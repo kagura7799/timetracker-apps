@@ -4,10 +4,7 @@
 #include <QDebug>
 #include <QString>
 
-ActiveWindowTracker::ActiveWindowTracker() : previousWindowTitle("")
-{
-
-}
+ActiveWindowTracker::ActiveWindowTracker(AppManager& appManager) : appManager_(appManager) {}
 
 std::string ActiveWindowTracker::getProcessPath()
 {
@@ -72,26 +69,35 @@ std::string ActiveWindowTracker::handleTitleString(std::string str)
     return str.substr(lastSlash + 1);
 }
 
-void ActiveWindowTracker::trackActiveWindowTime(timetrackerapps* window)
+void ActiveWindowTracker::updateListApps(timetrackerapps* window)
 {
-    timer.tick();
-
     std::string currentWindowTitle = getFullActiveAppName();
-
-    // if app version was not found, go to get process name
     if (currentWindowTitle == "unknown")
         currentWindowTitle = handleTitleString(getProcessPath());
 
-    std::wstring wCurrentWindowTitle(currentWindowTitle.begin(), currentWindowTitle.end());
-    std::string time = timer.currentTime();
+    // ≈сли активное окно изменилось, фиксируем врем€ предыдущего окна.
+    if (previousWindowTitle != currentWindowTitle)
+        appManager_.tickAppTimer(previousWindowTitle);
 
-    if (currentWindowTitle != previousWindowTitle)
-    {
-        qInfo() << "Active window changed: " << QString::fromStdString(currentWindowTitle);
-        addItem(time, wCurrentWindowTitle, window);
-        previousWindowTitle = currentWindowTitle;
+    // ”бедимс€, что дл€ текущего окна существует таймер, и обновл€ем его.
+    appManager_.ensureAppTimerExists(currentWindowTitle);
+    appManager_.tickAppTimer(currentWindowTitle);
+
+    std::string currentWindowTime = appManager_.getAppTime(currentWindowTitle);
+    std::wstring wCurrentWindowTitle(currentWindowTitle.begin(), currentWindowTitle.end());
+
+    // ѕровер€ем, существует ли уже приложение в списке (через метод containsApp)
+    if (!window->containsApp(QString::fromStdString(currentWindowTitle))) {
+        addItem(currentWindowTime, wCurrentWindowTitle, window);
     }
+    else {
+        window->updateWindowTime(QString::fromStdString(currentWindowTitle),
+            QString::fromStdString(currentWindowTime));
+    }
+
+    previousWindowTitle = currentWindowTitle;
 }
+
 
 void ActiveWindowTracker::addItem(std::string time, std::wstring title, timetrackerapps* window)
 {

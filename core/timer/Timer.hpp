@@ -10,14 +10,16 @@ struct Time
 	int seconds;
 };
 
-class Timer
+class Timer 
 {
 public:
+	Timer() : time{ 0, 0, 0 } {}
+
 	std::string currentTime();
 	void tick();
 
 private:
-	Time time = { 0, 0, 0 };
+	Time time;
 
 	void plusHour();
 	void plusMinute();

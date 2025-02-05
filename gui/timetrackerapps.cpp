@@ -1,4 +1,4 @@
-#include "timetrackerapps.h"
+#include "gui/timetrackerapps.h"
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -87,24 +87,6 @@ timetrackerapps::timetrackerapps(QWidget* parent)
 
     // Initialize default filter: active windows
     setActiveWindowFilter();
-
-    // Dummy data for testing
-    addWindowItem("Telegram Desktop", "4 h. 40 min");
-    addWindowItem("Telegram Desktop", "1 h. 20 min");
-    addWindowItem("Telegram Desktop", "1 h. 20 min");
-    addWindowItem("Telegram Desktop", "20 min");
-    // Additional dummy items for scrolling test
-    addWindowItem("Telegram Desktop", "5 min");
-    addWindowItem("Telegram Desktop", "1 h. 50 min");
-    addWindowItem("Telegram Desktop", "2 h. 10 min");
-    addWindowItem("Telegram Desktop", "30 min");
-    addWindowItem("Telegram Desktop", "30 min");
-    addWindowItem("Telegram Desktop", "30 min");
-    addWindowItem("Telegram Desktop", "30 min");
-    addWindowItem("Telegram Desktop", "30 min");
-    addWindowItem("Telegram Desktop", "30 min");
-    addWindowItem("Telegram Desktop", "5 h. 5 min");
-    addWindowItem("Telegram Desktop", "10 min");
 }
 
 timetrackerapps::~timetrackerapps()
@@ -116,7 +98,6 @@ void timetrackerapps::setActiveWindowFilter()
     activeWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
     allWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
     activeFilter_ = true;
-    updateWindowList();
 }
 
 void timetrackerapps::setAllWindowFilter()
@@ -124,11 +105,10 @@ void timetrackerapps::setAllWindowFilter()
     activeWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
     allWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
     activeFilter_ = false;
-    updateWindowList();
 }
 
 
-void timetrackerapps::addWindowItem(const QString& appName, const QString& time) {
+void timetrackerapps::addWindowItem(QString appName, QString time) {
     QListWidgetItem* item = new QListWidgetItem();
 
     QWidget* customWidget = new QWidget();
@@ -150,23 +130,58 @@ void timetrackerapps::addWindowItem(const QString& appName, const QString& time)
     windowListWidget_->setItemWidget(item, customWidget);
 }
 
-void timetrackerapps::updateWindowList() {
-    windowListWidget_->clear();
+void timetrackerapps::updateWindowTime(QString appName, QString newTime) {
+    for (int i = 0; i < windowListWidget_->count(); ++i) {
+        QListWidgetItem* item = windowListWidget_->item(i);
+        QWidget* customWidget = windowListWidget_->itemWidget(item);
+        if (!customWidget) continue;
 
-    if (activeFilter_) {
-        addWindowItem("Telegram Desktop", "4 h. 40 min");
-        addWindowItem("Telegram Desktop", "1 h. 20 min");
+        QHBoxLayout* layout = qobject_cast<QHBoxLayout*>(customWidget->layout());
+        if (!layout) continue;
+
+        // Ищем QLabel внутри layout
+        QLabel* appNameLabel = nullptr;
+        QLabel* timeLabel = nullptr;
+
+        for (int j = 0; j < layout->count(); ++j) {
+            QWidget* widget = layout->itemAt(j)->widget();
+            if (!widget) continue;
+
+            QLabel* label = qobject_cast<QLabel*>(widget);
+            if (!label) continue;
+
+            if (!appNameLabel) {
+                appNameLabel = label;
+            }
+            else {
+                timeLabel = label;
+                break;
+            }
+        }
+
+        if (appNameLabel && timeLabel && appNameLabel->text() == appName) {
+            timeLabel->setText(newTime);
+            break;
+        }
     }
-    else {
-        addWindowItem("Telegram Desktop", "4 h. 40 min");
-        addWindowItem("Telegram Desktop", "1 h. 20 min");
-        addWindowItem("Telegram Desktop", "1 h. 20 min");
-        addWindowItem("Telegram Desktop", "20 min");
-        addWindowItem("Telegram Desktop", "5 min");
-        addWindowItem("Telegram Desktop", "1 h. 50 min");
-        addWindowItem("Telegram Desktop", "2 h. 10 min");
-        addWindowItem("Telegram Desktop", "30 min");
-        addWindowItem("Telegram Desktop", "5 h. 5 min");
-        addWindowItem("Telegram Desktop", "10 min");
+}
+
+bool timetrackerapps::containsApp(const QString& appName)
+{
+    for (int i = 0; i < windowListWidget_->count(); ++i) {
+        QListWidgetItem* item = windowListWidget_->item(i);
+        QWidget* customWidget = windowListWidget_->itemWidget(item);
+        if (!customWidget)
+            continue;
+
+        QHBoxLayout* layout = qobject_cast<QHBoxLayout*>(customWidget->layout());
+        if (!layout)
+            continue;
+
+        // Предполагаем, что имя приложения находится в первом QLabel
+        QLabel* appNameLabel = qobject_cast<QLabel*>(layout->itemAt(0)->widget());
+        if (appNameLabel && appNameLabel->text() == appName)
+            return true;
     }
+    return false;
 }

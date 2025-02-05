@@ -5,15 +5,12 @@
 
 std::string Timer::currentTime()
 {
-	return std::to_string(time.hours) + " h. " + std::to_string(time.minutes) + " min";
+	return std::to_string(time.hours) + " h. " + std::to_string(time.minutes) + " min. " + std::to_string(time.seconds) + " sec";
 }
 
 void Timer::tick()
 {
-	qInfo() << "Full time: " << currentTime();
-	qInfo() << "Seconds (before): " << time.seconds;
 	plusSecond();
-	qInfo() << "Seconds (after): " << time.seconds;
 }
 
 void Timer::plusHour()
@@ -43,7 +40,6 @@ void Timer::plusMinute()
 
 void Timer::plusSecond()
 {
-	qInfo() << "PlusSecond";
 	if (time.seconds == 59)
 	{
 		time.seconds = 0;
@@ -51,7 +47,6 @@ void Timer::plusSecond()
 	}
 	else
 	{
-		qInfo() << "seconds++";
 		time.seconds++;
 	}
 }
