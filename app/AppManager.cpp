@@ -6,7 +6,6 @@ bool AppManager::ensureAppTimerExists(const std::string& name)
     if (appTimers.find(name) != appTimers.end()) 
         return false;
 
-    apps.push_back({ name, Timer() });
     appTimers[name] = Timer();
     return true;
 }

@@ -14,7 +14,6 @@ struct AppInfo
 class AppManager 
 {
 public:
-    std::vector<AppInfo> apps;
     std::map<std::string, Timer> appTimers;
 
     bool ensureAppTimerExists(const std::string& name);
