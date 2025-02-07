@@ -33,9 +33,9 @@ timetrackerapps::timetrackerapps(QWidget* parent)
     QHBoxLayout* totalTimeLayout = new QHBoxLayout();
     QLabel* totalTimeLabel = new QLabel("Total time");
     totalTimeLabel->setStyleSheet("color: white;");
-    QPushButton* totalTimeValue = new QPushButton("7 h. 20 min.");
+    totalTimeValue = new QPushButton();
     totalTimeValue->setStyleSheet("color: black; background-color: #559ad0; border-radius: 5px; padding: 5px 10px;");
-    totalTimeValue->setEnabled(false); // Disable clickability
+    totalTimeValue->setEnabled(false);
     totalTimeLayout->addWidget(totalTimeLabel);
     totalTimeLayout->addStretch();
     totalTimeLayout->addWidget(totalTimeValue);
@@ -97,14 +97,12 @@ void timetrackerapps::setActiveWindowFilter()
 {
     activeWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
     allWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
-    activeFilter_ = true;
 }
 
 void timetrackerapps::setAllWindowFilter()
 {
     activeWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
     allWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
-    activeFilter_ = false;
 }
 
 
@@ -139,7 +137,6 @@ void timetrackerapps::updateWindowTime(QString appName, QString newTime) {
         QHBoxLayout* layout = qobject_cast<QHBoxLayout*>(customWidget->layout());
         if (!layout) continue;
 
-        // Ищем QLabel внутри layout
         QLabel* appNameLabel = nullptr;
         QLabel* timeLabel = nullptr;
 
@@ -178,10 +175,14 @@ bool timetrackerapps::containsApp(const QString& appName)
         if (!layout)
             continue;
 
-        // Предполагаем, что имя приложения находится в первом QLabel
         QLabel* appNameLabel = qobject_cast<QLabel*>(layout->itemAt(0)->widget());
         if (appNameLabel && appNameLabel->text() == appName)
             return true;
     }
     return false;
+}
+
+void timetrackerapps::updateTotalTimeLabel(const QString& value)
+{
+    totalTimeValue->setText(value);
 }

@@ -4,16 +4,19 @@
 #include <QMainWindow>
 #include <QListWidget>
 #include <QPushButton>
+#include <QLabel>
 
 class timetrackerapps : public QMainWindow
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
-    timetrackerapps(QWidget* parent = nullptr);
+    explicit timetrackerapps(QWidget* parent = nullptr);
     ~timetrackerapps();
+
     void addWindowItem(QString appName, QString time);
     void updateWindowTime(QString appName, QString newTime);
+    void updateTotalTimeLabel(const QString& value);
     bool containsApp(const QString& appName);
 
 private slots:
@@ -24,6 +27,6 @@ private:
     QPushButton* activeWindowsButton_;
     QPushButton* allWindowsButton_;
     QListWidget* windowListWidget_;
-    bool activeFilter_ = true;
+    QPushButton* totalTimeValue;
 };
 #endif // TIMETRACKERAPPS_H

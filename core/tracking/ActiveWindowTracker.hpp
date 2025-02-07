@@ -15,7 +15,6 @@ public:
 
 private:
 	void addItem(std::string time, std::wstring title, timetrackerapps* window);
-	std::string previousWindowTitle;
 	std::string handleTitleString(std::string str);
 	AppManager& appManager_;
 };

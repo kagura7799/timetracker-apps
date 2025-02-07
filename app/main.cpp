@@ -1,8 +1,9 @@
 #include "gui/timetrackerapps.h"
 #include "core/tracking/ActiveWindowTracker.hpp"
 #include "app/AppManager.hpp"
+#include "core/calculator/TotalTime.hpp"
 #include <QApplication>
-#include "QDebug"
+#include <QDebug>
 #include <QTimer>
 
 int main(int argc, char* argv[])
@@ -12,11 +13,13 @@ int main(int argc, char* argv[])
 
     AppManager appManager;
     ActiveWindowTracker winTracker(appManager);
+    TotalTime totalTime;
 
     QTimer* timer = new QTimer();
 
     QObject::connect(timer, &QTimer::timeout, [&, w_ptr = &w]() {
         winTracker.updateListApps(w_ptr);
+        totalTime.TotalTimeTicker(w_ptr);
     });
 
     timer->start(1000);
