@@ -69,39 +69,29 @@ std::string ActiveWindowTracker::handleTitleString(std::string str)
     return str.substr(lastSlash + 1);
 }
 
+
 void ActiveWindowTracker::updateListApps(timetrackerapps* window)
 {
     std::string currentWindowTitle = getFullActiveAppName();
     if (currentWindowTitle == "unknown")
         currentWindowTitle = handleTitleString(getProcessPath());
 
-<<<<<<< HEAD
-=======
-    if (previousWindowTitle != currentWindowTitle)
-        appManager_.tickAppTimer(previousWindowTitle);
-
->>>>>>> 4aab5048280647916ef46bdfd6924903aaa5e9cc
     appManager_.ensureAppTimerExists(currentWindowTitle);
     appManager_.tickAppTimer(currentWindowTitle);
 
     std::string currentWindowTime = appManager_.getAppTime(currentWindowTitle);
     std::wstring wCurrentWindowTitle(currentWindowTitle.begin(), currentWindowTitle.end());
 
-<<<<<<< HEAD
-    if (!window->containsApp(QString::fromStdString(currentWindowTitle))) 
+    if (!window->containsApp(QString::fromStdString(currentWindowTitle)))
     {
-=======
-    if (!window->containsApp(QString::fromStdString(currentWindowTitle))) {
->>>>>>> 4aab5048280647916ef46bdfd6924903aaa5e9cc
         addItem(currentWindowTime, wCurrentWindowTitle, window);
     }
-    else 
+    else
     {
         window->updateWindowTime(QString::fromStdString(currentWindowTitle),
             QString::fromStdString(currentWindowTime));
     }
 }
-
 
 void ActiveWindowTracker::addItem(std::string time, std::wstring title, timetrackerapps* window)
 {
