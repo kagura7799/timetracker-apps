@@ -8,8 +8,8 @@
 #include <QListWidgetItem>
 #include <QDebug>
 
-timetrackerapps::timetrackerapps(QWidget* parent)
-    : QMainWindow(parent)
+timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
+    : QMainWindow(parent), manager(manager)
 {
     setWindowTitle("TimeTracker");
     resize(400, 400);
@@ -185,4 +185,16 @@ bool timetrackerapps::containsApp(const QString& appName)
 void timetrackerapps::updateTotalTimeLabel(const QString& value)
 {
     totalTimeValue->setText(value);
+}
+
+void timetrackerapps::updateList() 
+{
+    manager.sortApps();
+    windowListWidget_->clear();
+
+    for (const auto& [time, appName] : manager.getSortedAppsVector()) 
+    {
+        if (!containsApp(QString::fromStdString(appName)))
+            addWindowItem(QString::fromStdString(appName), QString::fromStdString(manager.getAppTimers()[appName].getTimeFormatted(time)));
+    }
 }

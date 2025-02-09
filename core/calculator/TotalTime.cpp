@@ -1,9 +1,17 @@
 #include "TotalTime.hpp"
 
-void TotalTime::TotalTimeTicker(timetrackerapps* window)
+TotalTime::TotalTime(AppManager& appManager) : appManager_(appManager)
 {
-	timer.tick();
+	timer.start();
+}
 
-	std::string currentTime = timer.currentTime();
-	window->updateTotalTimeLabel(QString::fromStdString(currentTime));
+void TotalTime::TotalTimer(timetrackerapps* window)
+{
+    int totalTime = 0;
+    for (const auto& [appName, timer] : appManager_.getAppTimers()) {
+        totalTime += timer.getTimeInSeconds();
+    }
+
+    std::string currentTime = timer.getTimeFormatted(totalTime);
+    presenter.updateTotalTimeLabel(window, QString::fromStdString(currentTime));
 }

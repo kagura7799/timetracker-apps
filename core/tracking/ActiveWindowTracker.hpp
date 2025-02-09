@@ -4,6 +4,7 @@
 #include "gui/timetrackerapps.h"
 #include "core/timer/Timer.hpp"
 #include "app/AppManager.hpp"
+#include "core/presenter/Presenter.hpp"
 
 class ActiveWindowTracker
 {
@@ -14,7 +15,8 @@ public:
 	std::string getFullActiveAppName();
 
 private:
-	void addItem(std::string time, std::wstring title, timetrackerapps* window);
 	std::string handleTitleString(std::string str);
 	AppManager& appManager_;
+	Timer timer;
+	Presenter presenter;
 };

@@ -1,22 +1,25 @@
-#pragma once
+#ifndef APPMANAGER_HPP
+#define APPMANAGER_HPP
 
-#include <string>
-#include <vector>
-#include <map>
 #include "core/timer/Timer.hpp"
+#include <map>
+#include <vector>
+#include <string>
+#include <algorithm>
 
-struct AppInfo 
-{
-    std::string name;
-    Timer time;
-};
-
-class AppManager 
-{
+class AppManager {
 public:
-    std::map<std::string, Timer> appTimers;
-
     bool ensureAppTimerExists(const std::string& name);
-    void tickAppTimer(const std::string& name);
-    std::string getAppTime(const std::string& name);
+    void switchApp(const std::string& newApp);
+    int getAppTime(const std::string& name);
+    void sortApps();
+    const std::vector<std::pair<int, std::string>>& getSortedAppsVector();
+    std::map<std::string, Timer>& getAppTimers();
+
+private:
+    std::map<std::string, Timer> appTimers;
+    std::vector<std::pair<int, std::string>> sortedApps;
+    std::string currentApp;
 };
+
+#endif // APPMANAGER_HPP

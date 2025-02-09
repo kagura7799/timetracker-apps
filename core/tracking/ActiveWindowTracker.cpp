@@ -47,7 +47,7 @@ std::string ActiveWindowTracker::getFullActiveAppName()
     if (!VerQueryValueA(buffer.data(), "\\", (LPVOID*)&fileInfo, &len)) return "";
 
     char* productName = nullptr;
-    if (VerQueryValueA(buffer.data(), "\\StringFileInfo\\040904b0\\FileDescription", (LPVOID*)&productName, &len)) 
+    if (VerQueryValueA(buffer.data(), "\\StringFileInfo\\040904b0\\FileDescription", (LPVOID*)&productName, &len))
     {
         return std::string(productName);
     }
@@ -69,33 +69,30 @@ std::string ActiveWindowTracker::handleTitleString(std::string str)
     return str.substr(lastSlash + 1);
 }
 
-
 void ActiveWindowTracker::updateListApps(timetrackerapps* window)
 {
     std::string currentWindowTitle = getFullActiveAppName();
+
     if (currentWindowTitle == "unknown")
+    {
         currentWindowTitle = handleTitleString(getProcessPath());
-
-    appManager_.ensureAppTimerExists(currentWindowTitle);
-    appManager_.tickAppTimer(currentWindowTitle);
-
-    std::string currentWindowTime = appManager_.getAppTime(currentWindowTitle);
-    std::wstring wCurrentWindowTitle(currentWindowTitle.begin(), currentWindowTitle.end());
-
-    if (!window->containsApp(QString::fromStdString(currentWindowTitle)))
-    {
-        addItem(currentWindowTime, wCurrentWindowTitle, window);
     }
-    else
-    {
-        window->updateWindowTime(QString::fromStdString(currentWindowTitle),
-            QString::fromStdString(currentWindowTime));
-    }
-}
 
-void ActiveWindowTracker::addItem(std::string time, std::wstring title, timetrackerapps* window)
-{
-    window->addWindowItem(QString::fromStdWString(title), QString::fromStdString(time));
+    static std::string lastWindowTitle = "";
+
+    if (currentWindowTitle != lastWindowTitle) {
+        lastWindowTitle = currentWindowTitle;
+        appManager_.switchApp(currentWindowTitle);
+    }
+
+    int currentWindowTime = appManager_.getAppTime(currentWindowTitle);
+    std::string formattedTime = timer.getTimeFormatted(currentWindowTime);
+
+    presenter.updateListItem(window);
+    window->updateWindowTime(
+        QString::fromStdString(currentWindowTitle),
+        QString::fromStdString(formattedTime)
+    );
 }
 
 #pragma comment(lib, "version.lib")

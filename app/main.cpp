@@ -9,17 +9,17 @@
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
-    timetrackerapps w;
-
     AppManager appManager;
+    timetrackerapps w(appManager);
+
     ActiveWindowTracker winTracker(appManager);
-    TotalTime totalTime;
+    TotalTime totalTime(appManager);
 
     QTimer* timer = new QTimer();
 
     QObject::connect(timer, &QTimer::timeout, [&, w_ptr = &w]() {
         winTracker.updateListApps(w_ptr);
-        totalTime.TotalTimeTicker(w_ptr);
+        totalTime.TotalTimer(w_ptr);
     });
 
     timer->start(1000);

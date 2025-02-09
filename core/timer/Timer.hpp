@@ -1,27 +1,23 @@
-#pragma once
+#ifndef TIMER_HPP
+#define TIMER_HPP
 
+#include <chrono>
 #include <string>
-#include <iostream>
-
-struct Time
-{
-	int hours;
-	int minutes;
-	int seconds;
-};
-
-class Timer 
-{
+#include <QDebug>
+class Timer {
 public:
-	Timer() : time{ 0, 0, 0 } {}
+    Timer();
 
-	std::string currentTime();
-	void tick();
+    void start();
+    void stop();
+
+    int getTimeInSeconds() const;
+    std::string getTimeFormatted(int time) const;
 
 private:
-	Time time;
-
-	void plusHour();
-	void plusMinute();
-	void plusSecond();
+    int totalSeconds;
+    bool running;
+    std::chrono::steady_clock::time_point lastStartTime;
 };
+
+#endif // TIMER_HPP

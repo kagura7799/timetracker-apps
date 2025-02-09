@@ -1,53 +1,40 @@
 #include "Timer.hpp"
-#include <string>
-#include <iostream>
-#include <QDebug>
 
-std::string Timer::currentTime()
+Timer::Timer() : totalSeconds(0), running(false) {}
+
+void Timer::start() 
 {
-	return std::to_string(time.hours) + " h. " + std::to_string(time.minutes) + " min. " + std::to_string(time.seconds) + " sec";
+    if (!running) 
+    {
+        lastStartTime = std::chrono::steady_clock::now();
+        running = true;
+    }
 }
 
-void Timer::tick()
+void Timer::stop() 
 {
-	plusSecond();
+    if (running) 
+    {
+        totalSeconds += std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::steady_clock::now() - lastStartTime).count();
+        running = false;
+    }
 }
 
-void Timer::plusHour()
+int Timer::getTimeInSeconds() const 
 {
-	if (time.hours == 24)
-	{
-		time.hours = 0;
-		time.minutes = 0;
-		time.seconds = 0;
-	}
-
-	time.hours++;
+    if (running) 
+    {
+        return totalSeconds + std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::steady_clock::now() - lastStartTime).count();
+    }
+    return totalSeconds;
 }
 
-void Timer::plusMinute()
+std::string Timer::getTimeFormatted(int time) const 
 {
-	if (time.minutes == 59)
-	{
-		time.minutes = 0;
-		plusHour();
-	}
-	else 
-	{
-		time.minutes++;
-	}
+    int h = time / 3600;
+    int m = (time % 3600) / 60;
+    int s = time % 60;
+    return std::to_string(h) + " h. " + std::to_string(m) + " m. " + std::to_string(s) + " s.";
 }
-
-void Timer::plusSecond()
-{
-	if (time.seconds == 59)
-	{
-		time.seconds = 0;
-		plusMinute();
-	}
-	else
-	{
-		time.seconds++;
-	}
-}
-
