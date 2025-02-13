@@ -4,8 +4,8 @@
 #include <QMainWindow>
 #include <QListWidget>
 #include <QPushButton>
-#include <QLabel>
-#include <QDebug>
+#include <QColor>
+#include <QSpacerItem>
 #include "app/AppManager.hpp"
 
 class timetrackerapps : public QMainWindow
@@ -13,25 +13,24 @@ class timetrackerapps : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit timetrackerapps(AppManager& manager, QWidget* parent = nullptr);
-    ~timetrackerapps();
+    timetrackerapps(AppManager& manager, QWidget* parent = nullptr);
+    ~timetrackerapps() override;
 
+public slots:
     void addWindowItem(QString appName, QString time);
     void updateWindowTime(QString appName, QString newTime);
-    void updateTotalTimeLabel(const QString& value);
     bool containsApp(const QString& appName);
+    void updateTotalTimeLabel(const QString& value);
     void updateList();
 
-
-private slots:
-    void setActiveWindowFilter();
-    void setAllWindowFilter();
-
 private:
-    QPushButton* activeWindowsButton_;
-    QPushButton* allWindowsButton_;
     QListWidget* windowListWidget_;
     QPushButton* totalTimeValue;
-    AppManager&  manager;
+
+    AppManager& manager;
+
+    QColor zebraColor1_;
+    QColor zebraColor2_;
 };
-#endif // TIMETRACKERAPPS_H
+
+#endif

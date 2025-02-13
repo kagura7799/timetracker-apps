@@ -7,12 +7,13 @@
 #include <QFrame>
 #include <QListWidgetItem>
 #include <QDebug>
+#include <QSpacerItem>
 
 timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
-    : QMainWindow(parent), manager(manager)
+    : QMainWindow(parent), manager(manager), zebraColor1_("#36393f"), zebraColor2_("#424549")
 {
     setWindowTitle("TimeTracker");
-    resize(400, 400);
+    resize(600, 600); // Увеличим размер окна
 
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
@@ -20,11 +21,10 @@ timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(10, 10, 10, 10);
 
-    // Title bar with close button
+    // Title bar
     QHBoxLayout* titleBarLayout = new QHBoxLayout();
     QLabel* titleLabel = new QLabel("TimeTracker");
-    titleLabel->setStyleSheet("font-size: 22px;");
-    titleLabel->setStyleSheet("color: white;");
+    titleLabel->setStyleSheet("font-size: 36px; color: white;"); // Увеличим размер шрифта
     titleBarLayout->addWidget(titleLabel);
     titleBarLayout->addStretch();
     mainLayout->addLayout(titleBarLayout);
@@ -45,66 +45,32 @@ timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     timeRangeDropdown->addItem("Week");
     timeRangeDropdown->addItem("Month");
     timeRangeDropdown->addItem("Year");
-
     timeRangeDropdown->setStyleSheet("border: none; background-color: white; padding: 5px 10px; border-radius: 5px;");
     totalTimeLayout->addWidget(timeRangeDropdown);
     mainLayout->addLayout(totalTimeLayout);
 
-
-    // Buttons for active/all windows
-    QHBoxLayout* filterButtonsLayout = new QHBoxLayout();
-    activeWindowsButton_ = new QPushButton("Only active windows");
-    activeWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
-    connect(activeWindowsButton_, &QPushButton::clicked, this, &timetrackerapps::setActiveWindowFilter);
-
-    allWindowsButton_ = new QPushButton("All opened windows");
-    allWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
-    connect(allWindowsButton_, &QPushButton::clicked, this, &timetrackerapps::setAllWindowFilter);
-
-    filterButtonsLayout->addWidget(activeWindowsButton_);
-    filterButtonsLayout->addWidget(allWindowsButton_);
-    mainLayout->addLayout(filterButtonsLayout);
-
+    // Добавляем разделитель
+    QSpacerItem* spacer = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Fixed);
+    mainLayout->addItem(spacer);
 
     // Scrollable window list
     QScrollArea* scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
-    scrollArea->setStyleSheet("background-color: #36393f;");
-
+    scrollArea->setStyleSheet("background-color: #36393f; border: none;");
 
     windowListWidget_ = new QListWidget();
     windowListWidget_->setStyleSheet("background-color: #36393f; border: none;");
     scrollArea->setWidget(windowListWidget_);
-
-
     mainLayout->addWidget(scrollArea);
     mainLayout->addStretch();
 
-
     // Set background color of the main window
     setStyleSheet("background-color: #36393f;");
-
-
-    // Initialize default filter: active windows
-    setActiveWindowFilter();
 }
 
 timetrackerapps::~timetrackerapps()
 {
 }
-
-void timetrackerapps::setActiveWindowFilter()
-{
-    activeWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
-    allWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
-}
-
-void timetrackerapps::setAllWindowFilter()
-{
-    activeWindowsButton_->setStyleSheet("background-color: #e0e0e0; color: black; border: none; padding: 5px 10px; border-radius: 5px;");
-    allWindowsButton_->setStyleSheet("background-color: #559ad0; color: white; border: none; padding: 5px 10px; border-radius: 5px;");
-}
-
 
 void timetrackerapps::addWindowItem(QString appName, QString time) {
     QListWidgetItem* item = new QListWidgetItem();
@@ -114,14 +80,25 @@ void timetrackerapps::addWindowItem(QString appName, QString time) {
     widgetLayout->setContentsMargins(0, 0, 0, 0);
 
     QLabel* appNameLabel = new QLabel(appName);
-    appNameLabel->setStyleSheet("color: white;");
+    appNameLabel->setStyleSheet("color: white; font-size: 16px;");
     QLabel* timeLabel = new QLabel(time);
-    timeLabel->setStyleSheet("color: white;");
+    timeLabel->setStyleSheet("color: white; font-size: 16px;");
+
     widgetLayout->addWidget(appNameLabel);
     widgetLayout->addStretch();
     widgetLayout->addWidget(timeLabel);
     customWidget->setLayout(widgetLayout);
 
+    // Устанавливаем цвет фона для customWidget
+    int row = windowListWidget_->row(item);
+    if (row % 2 == 0) {
+        customWidget->setStyleSheet(QString("background-color: %1;").arg(zebraColor1_.name()));
+        item->setBackground(zebraColor1_);
+    }
+    else {
+        customWidget->setStyleSheet(QString("background-color: %1;").arg(zebraColor2_.name()));
+        item->setBackground(zebraColor2_);
+    }
 
     item->setSizeHint(customWidget->sizeHint());
     windowListWidget_->addItem(item);
@@ -187,12 +164,12 @@ void timetrackerapps::updateTotalTimeLabel(const QString& value)
     totalTimeValue->setText(value);
 }
 
-void timetrackerapps::updateList() 
+void timetrackerapps::updateList()
 {
     manager.sortApps();
     windowListWidget_->clear();
 
-    for (const auto& [time, appName] : manager.getSortedAppsVector()) 
+    for (const auto& [time, appName] : manager.getSortedAppsVector())
     {
         if (!containsApp(QString::fromStdString(appName)))
             addWindowItem(QString::fromStdString(appName), QString::fromStdString(manager.getAppTimers()[appName].getTimeFormatted(time)));
