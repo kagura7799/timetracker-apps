@@ -31,6 +31,9 @@ private:
 
     QColor zebraColor1_;
     QColor zebraColor2_;
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
 };
 
 #endif

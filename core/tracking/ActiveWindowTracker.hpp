@@ -19,4 +19,5 @@ private:
 	AppManager& appManager_;
 	Timer timer;
 	Presenter presenter;
+	qint64 lastSwitchTime;
 };

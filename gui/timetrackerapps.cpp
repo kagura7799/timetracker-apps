@@ -8,12 +8,14 @@
 #include <QListWidgetItem>
 #include <QDebug>
 #include <QSpacerItem>
+#include <QCloseEvent>
+#include <QThread>
 
 timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     : QMainWindow(parent), manager(manager), zebraColor1_("#36393f"), zebraColor2_("#424549")
 {
     setWindowTitle("TimeTracker");
-    resize(600, 600); // Увеличим размер окна
+    resize(600, 600);
 
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
@@ -21,15 +23,13 @@ timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(10, 10, 10, 10);
 
-    // Title bar
     QHBoxLayout* titleBarLayout = new QHBoxLayout();
     QLabel* titleLabel = new QLabel("TimeTracker");
-    titleLabel->setStyleSheet("font-size: 36px; color: white;"); // Увеличим размер шрифта
+    titleLabel->setStyleSheet("font-size: 36px; color: white;");
     titleBarLayout->addWidget(titleLabel);
     titleBarLayout->addStretch();
     mainLayout->addLayout(titleBarLayout);
 
-    // Total time area
     QHBoxLayout* totalTimeLayout = new QHBoxLayout();
     QLabel* totalTimeLabel = new QLabel("Total time");
     totalTimeLabel->setStyleSheet("color: white;");
@@ -41,7 +41,6 @@ timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     totalTimeLayout->addWidget(totalTimeValue);
 
     QComboBox* timeRangeDropdown = new QComboBox();
-    timeRangeDropdown->addItem("Day");
     timeRangeDropdown->addItem("Week");
     timeRangeDropdown->addItem("Month");
     timeRangeDropdown->addItem("Year");
@@ -49,11 +48,9 @@ timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     totalTimeLayout->addWidget(timeRangeDropdown);
     mainLayout->addLayout(totalTimeLayout);
 
-    // Добавляем разделитель
     QSpacerItem* spacer = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Fixed);
     mainLayout->addItem(spacer);
 
-    // Scrollable window list
     QScrollArea* scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
     scrollArea->setStyleSheet("background-color: #36393f; border: none;");
@@ -64,7 +61,6 @@ timetrackerapps::timetrackerapps(AppManager& manager, QWidget* parent)
     mainLayout->addWidget(scrollArea);
     mainLayout->addStretch();
 
-    // Set background color of the main window
     setStyleSheet("background-color: #36393f;");
 }
 
@@ -89,7 +85,6 @@ void timetrackerapps::addWindowItem(QString appName, QString time) {
     widgetLayout->addWidget(timeLabel);
     customWidget->setLayout(widgetLayout);
 
-    // Устанавливаем цвет фона для customWidget
     int row = windowListWidget_->row(item);
     if (row % 2 == 0) {
         customWidget->setStyleSheet(QString("background-color: %1;").arg(zebraColor1_.name()));
@@ -174,4 +169,15 @@ void timetrackerapps::updateList()
         if (!containsApp(QString::fromStdString(appName)))
             addWindowItem(QString::fromStdString(appName), QString::fromStdString(manager.getAppTimers()[appName].getTimeFormatted(time)));
     }
+}
+
+void timetrackerapps::closeEvent(QCloseEvent* event) {
+    QThread* saveThread = QThread::create([this]() {
+        manager.saveHistoryToJson("timetrackerappsData.json");
+    });
+
+    QObject::connect(saveThread, &QThread::finished, saveThread, &QThread::deleteLater);
+    saveThread->start();
+
+    event->accept();
 }

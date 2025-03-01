@@ -10,6 +10,9 @@ int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
     AppManager appManager;
+
+    appManager.loadHistoryFromJson("timetrackerappsData.json");
+
     timetrackerapps w(appManager);
 
     ActiveWindowTracker winTracker(appManager);
@@ -27,3 +30,4 @@ int main(int argc, char* argv[])
     w.show();
     return a.exec();
 }
+

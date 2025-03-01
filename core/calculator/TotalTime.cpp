@@ -15,3 +15,4 @@ void TotalTime::TotalTimer(timetrackerapps* window)
     std::string currentTime = timer.getTimeFormatted(totalTime);
     presenter.updateTotalTimeLabel(window, QString::fromStdString(currentTime));
 }
+
